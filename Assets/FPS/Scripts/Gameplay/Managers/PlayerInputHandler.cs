@@ -148,20 +148,20 @@ namespace Unity.FPS.Gameplay
 
         public bool GetCrouchInputDown()
         {
-            if (CanProcessInput())
-            {
-                return Input.GetButtonDown(GameConstants.k_ButtonNameCrouch);
-            }
+            //if (CanProcessInput())
+            //{
+            //    return Input.GetButtonDown(GameConstants.k_ButtonNameCrouch);
+            //}
 
             return false;
         }
 
         public bool GetCrouchInputReleased()
         {
-            if (CanProcessInput())
-            {
-                return Input.GetButtonUp(GameConstants.k_ButtonNameCrouch);
-            }
+            //if (CanProcessInput())
+            //{
+            //    return Input.GetButtonUp(GameConstants.k_ButtonNameCrouch);
+            //}
 
             return false;
         }
