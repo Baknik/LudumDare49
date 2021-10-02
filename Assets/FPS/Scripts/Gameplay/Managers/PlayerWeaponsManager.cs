@@ -48,6 +48,7 @@ namespace Unity.FPS.Gameplay
         public float AimingBobAmount = 0.02f;
 
         [Header("Weapon Recoil")]
+        public float RecoilAmount = 0.2f;
         [Tooltip("This will affect how fast the recoil moves the weapon, the bigger the value, the fastest")]
         public float RecoilSharpness = 50f;
 
@@ -127,6 +128,12 @@ namespace Unity.FPS.Gameplay
             if (activeWeapon != null && activeWeapon.IsReloading)
                 return;
 
+            if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
+            {
+                m_AccumulatedRecoil += Vector3.back * RecoilAmount;
+                m_AccumulatedRecoil = Vector3.ClampMagnitude(m_AccumulatedRecoil, MaxRecoilDistance);
+            }
+
             if (activeWeapon != null && m_WeaponSwitchState == WeaponSwitchState.Up)
             {
                 if (!activeWeapon.AutomaticReload && m_InputHandler.GetReloadButtonDown() && activeWeapon.CurrentAmmoRatio < 1.0f)
@@ -139,17 +146,17 @@ namespace Unity.FPS.Gameplay
                 IsAiming = m_InputHandler.GetAimInputHeld();
 
                 // handle shooting
-                bool hasFired = activeWeapon.HandleShootInputs(
-                    m_InputHandler.GetFireInputDown(),
-                    m_InputHandler.GetFireInputHeld(),
-                    m_InputHandler.GetFireInputReleased());
+                //bool hasFired = activeWeapon.HandleShootInputs(
+                //    m_InputHandler.GetFireInputDown(),
+                //    m_InputHandler.GetFireInputHeld(),
+                //    m_InputHandler.GetFireInputReleased());
 
                 // Handle accumulating recoil
-                if (hasFired)
-                {
-                    m_AccumulatedRecoil += Vector3.back * activeWeapon.RecoilForce;
-                    m_AccumulatedRecoil = Vector3.ClampMagnitude(m_AccumulatedRecoil, MaxRecoilDistance);
-                }
+                //if (hasFired)
+                //{
+                //    m_AccumulatedRecoil += Vector3.back * 0.2f;
+                //    m_AccumulatedRecoil = Vector3.ClampMagnitude(m_AccumulatedRecoil, MaxRecoilDistance);
+                //}
             }
 
             // weapon switch handling
