@@ -1,5 +1,9 @@
 public enum PropertyType
 {
     GRAVITY,
-    EMISSION
+    EMISSION,
+    MOVABLE,
+    BUOYANT,
+    FRICTION,
+    BLANK
 }

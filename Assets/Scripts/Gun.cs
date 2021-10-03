@@ -2,16 +2,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using Sirenix.OdinInspector;
 
-public class Gun : MonoBehaviour
+public class Gun : SerializedMonoBehaviour
 {
     public LayerMask TargetableObjects;
     public Transform GunMuzzleEnd;
     public Color LaserOnColor;
     public Color LaserOffColor;
     public PropertyType[] SelectableProperties;
+    public SelectionArch[] SelectionArchs;
     public Transform SelectionWheel;
     public int WheelRotationDegrees = 60;
+    public Material NeutralSelectionMaterial;
+    public Material OnSelectionMaterial;
+    public Material OffSelectionMaterial;
+    public Dictionary<int, PropertyType> SelectionAngles;
 
     private Camera _mainCamera;
 
@@ -20,7 +26,8 @@ public class Gun : MonoBehaviour
 
     private Vector3 _laserHitPoint;
     private int _selectorWheelTargetRotationAngle;
-    private int _selectedProperty;
+    private PropertyType _selectedProperty;
+    private float _lastSelectionWheelRotation;
 
     private void Awake()
     {
@@ -35,7 +42,9 @@ public class Gun : MonoBehaviour
 
         _selectorWheelTargetRotationAngle = 0;
 
-        _selectedProperty = 0;
+        _selectedProperty = SelectableProperties[0];
+
+        _lastSelectionWheelRotation = 0f;
     }
 
     private void Update()
@@ -49,40 +58,54 @@ public class Gun : MonoBehaviour
 
             if (_targetedObject != null)
             {
-                _targetedObject.FiredAt(SelectableProperties[_selectedProperty]);
+                _targetedObject.FiredAt(_selectedProperty);
+
+                UpdateSelectionArchs();
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.E) || Input.GetAxis("Mouse ScrollWheel") > 0f)
+        _lastSelectionWheelRotation += Time.deltaTime;
+        if (_lastSelectionWheelRotation > 0.2f)
         {
-            _selectorWheelTargetRotationAngle -= WheelRotationDegrees;
-            if (_selectorWheelTargetRotationAngle < 0)
+            if (Input.GetKeyDown(KeyCode.E) || Input.mouseScrollDelta.y > 0f)
             {
-                _selectorWheelTargetRotationAngle = 360 + _selectorWheelTargetRotationAngle;
-            }
+                _selectorWheelTargetRotationAngle -= WheelRotationDegrees;
+                if (_selectorWheelTargetRotationAngle < 0)
+                {
+                    _selectorWheelTargetRotationAngle = 300;
+                }
 
-            _selectedProperty -= 1;
-            if (_selectedProperty < 0)
+                //_selectedProperty -= 1;
+                //if (_selectedProperty < 0)
+                //{
+                //    _selectedProperty = SelectableProperties.Length - 1;
+                //}
+                _selectedProperty = SelectionAngles[_selectorWheelTargetRotationAngle];
+
+                SelectionWheel.DOLocalRotate(new Vector3(0f, (float)_selectorWheelTargetRotationAngle, 0f), 0.15f);
+
+                _lastSelectionWheelRotation = 0f;
+            }
+            else if (Input.GetKeyDown(KeyCode.Q) || Input.mouseScrollDelta.y < 0f)
             {
-                _selectedProperty = SelectableProperties.Length - 1;
+                _selectorWheelTargetRotationAngle += WheelRotationDegrees;
+                if (_selectorWheelTargetRotationAngle >= 360)
+                {
+                    _selectorWheelTargetRotationAngle = 0;
+                }
+
+                //_selectedProperty += 1;
+                //if (_selectedProperty > SelectableProperties.Length - 1)
+                //{
+                //    _selectedProperty = 0;
+                //}
+                _selectedProperty = SelectionAngles[_selectorWheelTargetRotationAngle];
+
+                SelectionWheel.DOLocalRotate(new Vector3(0f, (float)_selectorWheelTargetRotationAngle, 0f), 0.19f);
+
+                _lastSelectionWheelRotation = 0f;
             }
         }
-        else if (Input.GetKeyDown(KeyCode.Q) || Input.GetAxis("Mouse ScrollWheel") < 0f)
-        {
-            _selectorWheelTargetRotationAngle += WheelRotationDegrees;
-            if (_selectorWheelTargetRotationAngle > 360)
-            {
-                _selectorWheelTargetRotationAngle = _selectorWheelTargetRotationAngle - 360;
-            }
-
-            _selectedProperty += 1;
-            if (_selectedProperty > SelectableProperties.Length - 1)
-            {
-                _selectedProperty = 0;
-            }
-        }
-
-        SelectionWheel.DOLocalRotate(new Vector3(0f, (float)_selectorWheelTargetRotationAngle, 0f), 0.2f);
     }
 
     private void LateUpdate()
@@ -111,5 +134,44 @@ public class Gun : MonoBehaviour
         if (targetedObject != null)  targetedObject.Target();
 
         _targetedObject = targetedObject;
+
+        UpdateSelectionArchs();
+    }
+
+    private void UpdateSelectionArchs()
+    {
+        foreach (SelectionArch arch in SelectionArchs)
+        {
+            if (_targetedObject == null)
+            {
+                arch.MeshRenderer.sharedMaterial = NeutralSelectionMaterial;
+                continue;
+            }
+
+            switch(arch.Property)
+            {
+                case PropertyType.EMISSION:
+                    arch.MeshRenderer.sharedMaterial = _targetedObject.Emissive ? OnSelectionMaterial : OffSelectionMaterial;
+                    break;
+                case PropertyType.GRAVITY:
+                    arch.MeshRenderer.sharedMaterial = _targetedObject.Gravity ? OnSelectionMaterial : OffSelectionMaterial;
+                    break;
+                case PropertyType.MOVABLE:
+                    arch.MeshRenderer.sharedMaterial = _targetedObject.Movable ? OnSelectionMaterial : OffSelectionMaterial;
+                    break;
+                case PropertyType.BUOYANT:
+                    arch.MeshRenderer.sharedMaterial = _targetedObject.Buoyant ? OnSelectionMaterial : OffSelectionMaterial;
+                    break;
+                case PropertyType.FRICTION:
+                    arch.MeshRenderer.sharedMaterial = _targetedObject.Friction ? OnSelectionMaterial : OffSelectionMaterial;
+                    break;
+            }
+        }
+    }
+
+    public struct SelectionArch
+    {
+        public PropertyType Property;
+        public MeshRenderer MeshRenderer;
     }
 }
