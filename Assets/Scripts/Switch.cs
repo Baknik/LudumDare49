@@ -7,6 +7,8 @@ public class Switch : MonoBehaviour
     public bool On;
     public Material OffMaterial;
     public Material OnMaterial;
+    public bool TurnedOn;
+    public bool TurnedOff;
 
     private MeshRenderer _meshRenderer;
 
@@ -18,6 +20,8 @@ public class Switch : MonoBehaviour
     private void Start()
     {
         On = false;
+        TurnedOn = false;
+        TurnedOff = false;
     }
 
     private void Update()
@@ -28,15 +32,18 @@ public class Switch : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         On = true;
+        TurnedOn = true;
     }
 
     private void OnTriggerStay(Collider other)
     {
         On = true;
+        TurnedOff = false;
     }
 
     private void OnTriggerExit(Collider other)
     {
         On = false;
+        TurnedOff = true;
     }
 }

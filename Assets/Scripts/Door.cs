@@ -17,12 +17,14 @@ public class Door : MonoBehaviour
 
     private void Update()
     {
-        if (Switch.On)
+        if (Switch.TurnedOn)
         {
+            Switch.TurnedOn = false;
             this.transform.DOMoveY(OpenHeight, Speed);
         }
-        else
+        else if (Switch.TurnedOff)
         {
+            Switch.TurnedOff = false;
             this.transform.DOMoveY(ClosedHeight, Speed);
         }
     }

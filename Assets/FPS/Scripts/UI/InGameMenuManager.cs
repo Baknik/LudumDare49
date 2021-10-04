@@ -59,6 +59,8 @@ namespace Unity.FPS.UI
 
             FramerateToggle.isOn = m_FramerateCounter.UIText.gameObject.activeSelf;
             FramerateToggle.onValueChanged.AddListener(OnFramerateCounterChanged);
+
+            ClosePauseMenu();
         }
 
         void Update()
@@ -159,7 +161,7 @@ namespace Unity.FPS.UI
 
         public void RestartGame()
         {
-            SceneManager.LoadScene("Main");
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
     }
 }
