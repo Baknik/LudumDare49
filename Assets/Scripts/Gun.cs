@@ -18,6 +18,7 @@ public class Gun : SerializedMonoBehaviour
     public Material OnSelectionMaterial;
     public Material OffSelectionMaterial;
     public Dictionary<int, PropertyType> SelectionAngles;
+    public AudioSource ShootSource;
 
     private Camera _mainCamera;
 
@@ -62,6 +63,8 @@ public class Gun : SerializedMonoBehaviour
 
                 UpdateSelectionArchs();
             }
+
+            ShootSource.Play();
         }
 
         _lastSelectionWheelRotation += Time.deltaTime;
