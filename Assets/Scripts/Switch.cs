@@ -9,6 +9,9 @@ public class Switch : MonoBehaviour
     public Material OnMaterial;
     public bool TurnedOn;
     public bool TurnedOff;
+    public AudioSource SFX;
+    public AudioClip SFXOn;
+    public AudioClip SFXOff;
 
     private MeshRenderer _meshRenderer;
 
@@ -31,6 +34,11 @@ public class Switch : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (!On)
+        {
+            SFX.PlayOneShot(SFXOn);
+        }
+
         On = true;
         TurnedOn = true;
     }
